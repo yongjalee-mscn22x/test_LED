@@ -64,7 +64,7 @@ void ByteDataWrite(uint8_t data)
 {
 	for(uint8_t i = 0; i<8; i++)
 	{
-		if(data & 0b10000000)
+		if(data & 0b0000000010000000)
 		{
 			HAL_GPIO_WritePin(GPIOA, (1<<0), 0);
 		}
@@ -121,13 +121,32 @@ int main(void)
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
-	uint8_t index = 0;
+	uint8_t shift_change_flag = 1;
+	uint8_t index = 5;
 	while (1)
 	{
 
 		/* USER CODE END WHILE */
 		uint8_t pattern = (1 << index);
-		index = (index+1) % 8;
+
+		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0) == 0)
+		{
+			shift_change_flag = 0;
+		}
+
+		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_1) == 0)
+		{
+			shift_change_flag = 1;
+		}
+
+		if(shift_change_flag == 0)
+		{
+			index = (index+1) % 8;
+		}
+		else if(shift_change_flag == 1)
+		{
+			index = (index+7) % 8;
+		}
 
 		ByteDataWrite(pattern);
 
